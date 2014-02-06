@@ -1,5 +1,10 @@
+var game;
+var playerTurn;
+// No need for two computer players. 0-player games are fully automated 
+// within the "#go" click handler
+var computerPlayer;
+
 $(function() {
-  var game;
 
   // Default behavior is to wait until the user 
   // selects number of players and presses "Go!"
@@ -9,55 +14,34 @@ $(function() {
   
   // Play the game
   $("#go").click(function() {
-    var numberOfPlayers = $("#playerCount").val();
-    var playerTurn = 'X'; // Xs are always first in my world
+    var numberOfPlayers = parseInt($("#playerCount").val());
+    playerTurn = 'X'; // Xs are always first in my world
+    
     if (game) {
       game.reset();
     } else {
       game = new TicTacToeGame(numberOfPlayers);  
     }
+
+    // Reset existing squares
+    $(".square").off('click');
+    $(".square").on('click', squareClickHandler);
     $("#game-grid").fadeTo(200, 0.1);
     $("#game-grid").fadeTo(500, 1);
-    
     $(".square").text("");
-
-    // Reset existing square click warning
-    $(".square").off('click');
-    $(".square").on('click', function() {
-      var squareClicked = $(this).attr("id");
     
-      if (game.move(squareClicked)) { // If it's a valid move
-        $(this).text(playerTurn);
-        playerTurn = playerTurn === 'X' ? 'O' : 'X';
-      } else {
-        notifyInvalid(squareClicked);
-      }
-      
-      switch (game.winner()) {
-      case "X":
-        alert("X wins!");
-        $(".square").off('click');
-        break;
-      case "O":
-        alert("O wins!");
-        $(".square").off('click');
-        break;
-      case "D":
-        alert("All right, we'll call it a draw.");
-        $(".square").off('click');
-      default:
-        // Do nothing
-      }
-    });
-    
-    // Automated player handling
-    if (numberOfPlayers == 0) {
+    switch (numberOfPlayers) {
+    case 0:
+      computerPlayer = new RobotOverlord();
       while (!game.winner()) {
-        var availableMoves = game.availableMoves();
-        var randomIndex = Math.floor(Math.random() * availableMoves.length);
-        
-        $("#"+availableMoves[randomIndex]).click();
+        computerPlayer.play();
       }
+      break;
+    case 1:
+      computerPlayer = new RobotOverlord();
+      break;
+    default: 
+      computerPlayer = undefined;
     }
   });
 });
@@ -66,6 +50,38 @@ var notifyInvalid = function() {
   alert("Invalid move.  Try a blank square.");
 }
 
+var squareClickHandler = function() {
+  var squareClicked = $(this).attr("id");
+
+  if (game.move(squareClicked)) { // If it's a valid move
+    $(this).text(playerTurn);
+    playerTurn = playerTurn === 'X' ? 'O' : 'X';
+  } else {
+    notifyInvalid(squareClicked);
+  }
+  
+  switch (game.winner()) {
+  case "X":
+    alert("X wins!");
+    $(".square").off('click');
+    break;
+  case "O":
+    alert("O wins!");
+    $(".square").off('click');
+    break;
+  case "D":
+    alert("All right, we'll call it a draw.");
+    $(".square").off('click');
+  default:
+    // Do nothing
+  }
+  
+  // Be polite.  Let the computer play
+  if (computerPlayer && playerTurn == "O") {
+    computerPlayer.play();
+  }
+}
+    
 // Begin game class
 function TicTacToeGame(numberOfPlayers) {
   this.squares = new Array(9);
@@ -127,5 +143,15 @@ function TicTacToeGame(numberOfPlayers) {
   
   var emptyCount = function(arr) {
     return arr.length - arr.filter(String).length;
+  }
+}
+
+// I, for one, welcome our new robot tic-tac-toe-playing overlords
+function RobotOverlord() {
+  this.play = function() {
+    var availableMoves = game.availableMoves();
+    var randomIndex = Math.floor(Math.random() * availableMoves.length);
+    
+    $("#"+availableMoves[randomIndex]).click();
   }
 }
