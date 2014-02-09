@@ -1,16 +1,13 @@
 var game;
 var playerTurn;
-// No need for two computer players. 0-player games are fully automated 
-// within the "#go" click handler
-var computerPlayer;
+var computerPlayerX;
+var computerPlayerO;
+var learnedStates = {};
 
 $(function() {
-
   // Default behavior is to wait until the user 
   // selects number of players and presses "Go!"
-  $(".square").on('click', function() {
-    alert("Please select 'Number of players' and press 'Go!' first.");
-  });
+  $(".square").on('click', preGameMessage);
   
   // Play the game
   $("#go").click(function() {
@@ -20,7 +17,7 @@ $(function() {
     if (game) {
       game.reset();
     } else {
-      game = new TicTacToeGame(numberOfPlayers);  
+      game = new TicTacToeGame(numberOfPlayers);
     }
 
     // Reset existing squares
@@ -32,16 +29,18 @@ $(function() {
     
     switch (numberOfPlayers) {
     case 0:
-      computerPlayer = new RobotOverlord();
+      computerPlayerX = new RobotOverlord();
+      computerPlayerY = new RobotOverlord();
       while (!game.winner()) {
-        computerPlayer.play();
+        $("#"+computerPlayerX.chooseSquare()).click();
+        $("#"+computerPlayerY.chooseSquare()).click();
       }
       break;
     case 1:
-      computerPlayer = new RobotOverlord();
+      computerPlayerO = new RobotOverlord();
       break;
     default: 
-      computerPlayer = undefined;
+      computerPlayerO = undefined;
     }
   });
 });
@@ -64,21 +63,24 @@ var squareClickHandler = function() {
   case "X":
     alert("X wins!");
     $(".square").off('click');
+    $(".square").on('click', preGameMessage);
     break;
   case "O":
     alert("O wins!");
     $(".square").off('click');
+    $(".square").on('click', preGameMessage);
     break;
   case "D":
     alert("All right, we'll call it a draw.");
     $(".square").off('click');
+    $(".square").on('click', preGameMessage);
   default:
     // Do nothing
   }
   
   // Be polite.  Let the computer play
-  if (computerPlayer && playerTurn == "O") {
-    computerPlayer.play();
+  if (computerPlayerO && playerTurn == "O" && !game.winner()) {
+    $("#"+computerPlayerO.chooseSquare()).click();
   }
 }
     
@@ -86,6 +88,14 @@ var squareClickHandler = function() {
 function TicTacToeGame(numberOfPlayers) {
   this.squares = new Array(9);
   this.currentPlayer = 'X';
+  
+  this.currentState = function() {
+    var squaresString = ""; // Empty board = 0, all X's = 111111111, all O's = 222222222
+    for (var i = 0; i < this.squares.length; i++) {
+      squaresString += this.squares[i] ? (this.squares[i] == 'X' ? 1 : 2) : 0;
+    }
+    return squaresString;
+  }
   
   this.availableMoves = function() {
     var emptySquares = new Array();
@@ -126,7 +136,7 @@ function TicTacToeGame(numberOfPlayers) {
   }
   
   var threeInARow = function(currentState, mark) {
-    var threeFound;
+    var threeFound = false;
     var winningStates = [[0,1,2], [3,4,5], [6,7,8], [0,4,8], 
                          [2,4,6], [0,3,6], [1,4,7], [2,5,8]];
     
@@ -148,10 +158,33 @@ function TicTacToeGame(numberOfPlayers) {
 
 // I, for one, welcome our new robot tic-tac-toe-playing overlords
 function RobotOverlord() {
-  this.play = function() {
+  var movesMadeThisGame = {};
+  var move;
+  var whoAmI; // We'll need to know when learning after the game is over
+  
+  this.chooseSquare = function() {
+    var currentState = game.currentState();
     var availableMoves = game.availableMoves();
-    var randomIndex = Math.floor(Math.random() * availableMoves.length);
+    var position;
+    whoami = game.currentPlayer;
     
-    $("#"+availableMoves[randomIndex]).click();
+    if (learnedStates[currentState]) {
+      // Pick the most probable move
+      position = Math.floor(Math.random() * availableMoves.length);
+    } else {
+      // Try something new
+      position = Math.floor(Math.random() * availableMoves.length);
+      
+      learnedStates[currentState] = new Array();
+      learnedStates[currentState][move] = 1.0;
+    }
+    move = availableMoves[position];    
+    movesMadeThisGame[currentState] = move;
+    return move;
   }
 }
+
+var preGameMessage = function() {
+  alert("Please select 'Number of players' and press 'Go!' first.");
+}
+
