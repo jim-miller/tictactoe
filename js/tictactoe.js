@@ -2,7 +2,7 @@ var game;
 var playerTurn;
 var computerPlayerX;
 var computerPlayerO;
-var learnedStates = {};
+var learnedStates = learnTheGame();
 
 $(function() {
   // Default behavior is to wait until the user 
@@ -30,10 +30,10 @@ $(function() {
     switch (numberOfPlayers) {
     case 0:
       computerPlayerX = new RobotOverlord();
-      computerPlayerY = new RobotOverlord();
+      computerPlayerO = new RobotOverlord();
       while (!game.winner()) {
         $("#"+computerPlayerX.chooseSquare()).click();
-        $("#"+computerPlayerY.chooseSquare()).click();
+        $("#"+computerPlayerO.chooseSquare()).click();
       }
       break;
     case 1:
@@ -59,23 +59,22 @@ var squareClickHandler = function() {
     notifyInvalid(squareClicked);
   }
   
-  switch (game.winner()) {
-  case "X":
-    alert("X wins!");
+  if (game.winner()) {  // Game over, man!  Game over!
+    if (computerPlayerX) {
+      computerPlayerX.learn();
+    }
+    if (computerPlayerO) {
+      computerPlayerO.learn();
+    }
+    
+    if (game.winner() == "D") {
+      alert("All right, we'll call it a draw.");
+    } else {
+      alert(game.winner() + " wins!");
+    }
+    
     $(".square").off('click');
     $(".square").on('click', preGameMessage);
-    break;
-  case "O":
-    alert("O wins!");
-    $(".square").off('click');
-    $(".square").on('click', preGameMessage);
-    break;
-  case "D":
-    alert("All right, we'll call it a draw.");
-    $(".square").off('click');
-    $(".square").on('click', preGameMessage);
-  default:
-    // Do nothing
   }
   
   // Be polite.  Let the computer play
@@ -101,17 +100,17 @@ function TicTacToeGame(numberOfPlayers) {
     var emptySquares = new Array();
     for (var i = 0; i < this.squares.length; i++) {
       if (!this.squares[i]) {
-        emptySquares.push(i+1); // Squares run 1 - 9 from a player's perspective, not 0 - 8
+        emptySquares.push(i); // Squares run 1 - 9 from a player's perspective, not 0 - 8
       }
     }
     return emptySquares;
   }
   
   this.move = function(squareClicked) {
-    if (squareClicked > 9 || this.squares[squareClicked - 1]) {
+    if (squareClicked > 9 || this.squares[squareClicked]) {
       return false;
     } else {
-      this.squares[squareClicked - 1] = this.currentPlayer;
+      this.squares[squareClicked] = this.currentPlayer;
       this.currentPlayer = this.currentPlayer == 'X' ? 'O' : 'X';
       return true;
     }
@@ -160,27 +159,65 @@ function TicTacToeGame(numberOfPlayers) {
 function RobotOverlord() {
   var movesMadeThisGame = {};
   var move;
-  var whoAmI; // We'll need to know when learning after the game is over
+  var me; // We'll need to know when learning after the game is over
   
   this.chooseSquare = function() {
     var currentState = game.currentState();
     var availableMoves = game.availableMoves();
-    var position;
-    whoami = game.currentPlayer;
+    me = game.currentPlayer;
     
     if (learnedStates[currentState]) {
       // Pick the most probable move
-      position = Math.floor(Math.random() * availableMoves.length);
+      var maxValue = 0.0;
+      for (var i in learnedStates[currentState]) {
+        if (learnedStates[currentState][i] > maxValue) {
+          maxValue = learnedStates[currentState][i];
+          move = parseInt(i);
+        }
+      }
     } else {
       // Try something new
-      position = Math.floor(Math.random() * availableMoves.length);
-      
-      learnedStates[currentState] = new Array();
-      learnedStates[currentState][move] = 1.0;
+      move = availableMoves[Math.floor(Math.random() * availableMoves.length)];  
     }
-    move = availableMoves[position];    
+
+    console.log("Choosing "+move);
     movesMadeThisGame[currentState] = move;
+    if (!learnedStates[currentState]) {
+      learnedStates[currentState] = new Array();
+      for (var i = 0; i < availableMoves.length; i++) {
+        learnedStates[currentState][availableMoves[i]] = 1.0;
+      }
+    } 
+    
     return move;
+  }
+  
+  this.learn = function() {
+    var factor;
+    
+    switch (game.winner()) {
+    case "D": // Call it a draw
+      factor = 1.0;
+    break;
+    case me: // I won!
+      factor = 1.2;
+      break;
+    default: // I guess we lost
+      // More moves left = the greater the loss = the greater the punishment needed
+      factor = 0.9 - game.availableMoves().length/10.0
+    }
+    console.log("Factor = "+factor);
+    
+    // Review the game
+    for (var state in movesMadeThisGame) {
+      if (movesMadeThisGame.hasOwnProperty(state)) {
+        var squareSelected = movesMadeThisGame[state];
+        learnedStates[state][squareSelected] *= factor;
+      }
+    }
+    for (var state in learnedStates) {
+      console.log(state + " -> " + learnedStates[state])
+    }
   }
 }
 
