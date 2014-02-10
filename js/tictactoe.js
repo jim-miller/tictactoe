@@ -180,7 +180,6 @@ function RobotOverlord() {
       move = availableMoves[Math.floor(Math.random() * availableMoves.length)];  
     }
 
-    console.log("Choosing "+move);
     movesMadeThisGame[currentState] = move;
     if (!learnedStates[currentState]) {
       learnedStates[currentState] = new Array();
@@ -206,7 +205,6 @@ function RobotOverlord() {
       // More moves left = the greater the loss = the greater the punishment needed
       factor = 0.9 - game.availableMoves().length/10.0
     }
-    console.log("Factor = "+factor);
     
     // Review the game
     for (var state in movesMadeThisGame) {
@@ -214,9 +212,6 @@ function RobotOverlord() {
         var squareSelected = movesMadeThisGame[state];
         learnedStates[state][squareSelected] *= factor;
       }
-    }
-    for (var state in learnedStates) {
-      console.log(state + " -> " + learnedStates[state])
     }
   }
 }
