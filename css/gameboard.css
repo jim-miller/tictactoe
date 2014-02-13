@@ -60,9 +60,3 @@
 #game-grid .row:last-child .square {
 	border-bottom: none;
 }
-
-#instructions {
-	font-size: 18px;
-	font-weight: bold;
-	margin-left: -50px;
-}

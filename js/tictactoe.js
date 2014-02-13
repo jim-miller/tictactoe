@@ -1,23 +1,30 @@
 var game;
 var playerTurn;
+var playerX;
+var playerO;
 var computerPlayerX;
 var computerPlayerO;
 var learnedStates = learnTheGame();
 
 $(function() {
+  // set default player configuration
+  $("input[name='playerX'][value='human']").click();
+  $("input[name='playerO'][value='computer']").click();
+  
   // Default behavior is to wait until the user 
   // selects number of players and presses "Go!"
   $(".square").on('click', preGameMessage);
   
   // Play the game
-  $("#go").click(function() {
-    var numberOfPlayers = parseInt($("#playerCount").val());
+  $("#play").click(function() {
     playerTurn = 'X'; // Xs are always first in my world
+    playerX = $("input[name='playerX']:checked").val();
+    playerO = $("input[name='playerO']:checked").val();
     
     if (game) {
       game.reset();
     } else {
-      game = new TicTacToeGame(numberOfPlayers);
+      game = new TicTacToeGame();
     }
 
     // Reset existing squares
@@ -27,21 +34,21 @@ $(function() {
     $("#game-grid").fadeTo(500, 1);
     $(".square").text("");
     
-    switch (numberOfPlayers) {
-    case 0:
+    if (playerX == 'computer' && playerO == 'computer') {
       computerPlayerX = new RobotOverlord();
       computerPlayerO = new RobotOverlord();
       while (!game.winner()) {
         $("#"+computerPlayerX.chooseSquare()).click();
         $("#"+computerPlayerO.chooseSquare()).click();
       }
-      break;
-    case 1:
+    } else if (playerX == 'human') {
+      computerPlayerX = undefined;
       computerPlayerO = new RobotOverlord();
-      break;
-    default: 
-      computerPlayerO = undefined;
+    } else {
+      computerPlayerX = undefined;
+      computerPlayerO = undefined; // 2 human players
     }
+    
   });
 });
 
@@ -84,7 +91,7 @@ var squareClickHandler = function() {
 }
     
 // Begin game class
-function TicTacToeGame(numberOfPlayers) {
+function TicTacToeGame() {
   this.squares = new Array(9);
   this.currentPlayer = 'X';
   
@@ -217,6 +224,6 @@ function RobotOverlord() {
 }
 
 var preGameMessage = function() {
-  alert("Please select 'Number of players' and press 'Go!' first.");
+  alert("Please choose players, then press 'Play'");
 }
 
