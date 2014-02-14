@@ -4,7 +4,6 @@ var playerX;
 var playerO;
 var computerPlayerX;
 var computerPlayerO;
-var learnedStates = learnTheGame();
 
 $(function() {
   // set default player configuration
@@ -34,8 +33,9 @@ $(function() {
     $("#game-grid").fadeTo(500, 1);
     $(".square").text("");
 
-    computerPlayerX = playerX == 'computer' ? new RobotOverlord() : null;
-    computerPlayerO = playerO == 'computer' ? new RobotOverlord() : null;
+    // Creating a new player will cause the loss of learned states
+    computerPlayerX = playerX == 'computer' ? (computerPlayerX || new RobotOverlord()) : null;
+    computerPlayerO = playerO == 'computer' ? (computerPlayerO || new RobotOverlord()) : null;
 
     // We need to kick off the game when computer players go first  It
     // will continue on its own after that.
@@ -164,6 +164,8 @@ function RobotOverlord() {
   var movesMadeThisGame = {};
   var move;
   var me; // We'll need to know when learning after the game is over
+  //var learnedStates = learnTheGame();
+  var learnedStates = {};
 
   this.chooseSquare = function() {
     var currentState = game.currentState();
@@ -217,6 +219,8 @@ function RobotOverlord() {
         learnedStates[state][squareSelected] *= factor;
       }
     }
+
+    movesMadeThisGame = {};
   }
 }
 
