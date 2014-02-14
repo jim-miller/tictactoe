@@ -60,3 +60,11 @@
 #game-grid .row:last-child .square {
 	border-bottom: none;
 }
+
+@media (max-width: 768px) {
+  #game-grid {
+    position: fixed;
+    top: 100px;
+    left: 30px;
+  }
+}
