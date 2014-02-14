@@ -1,0 +1,75 @@
+#game-options {
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+#game-options .label {
+  position: absolute;
+  font-size: 85px;
+  font-weight: bold;
+  top: -30px;
+  bottom: 0;
+  right: 0;
+  color: #666;
+  font-family: 'Indie Flower', cursive;
+  width: 90px;
+  height: 90px;
+}
+
+#xlabel {
+  left: 145px;
+}
+
+#olabel {
+  left: 100px;
+}
+
+#play {
+  text-align: center;
+  margin-top: 5px;
+  margin-left: -10px;
+}
+
+
+@media (max-width: 992px) {
+  #xlabel {
+    left: 50px;
+  }
+  #play {
+    margin-left: -20px;
+  }
+}
+
+@media (max-width: 768px) {
+*
+  #game-options {
+    position: fixed;
+    top: 0;
+    left: 0;
+    float: left;
+  }
+  
+  #game-options div {
+    width: 160px;
+    position: fixed;
+    left: 95px;
+  }
+  
+  #playerX-select {
+    top: 10px;
+  }
+  
+  #playerO-select {
+    top: 80px;
+  }
+  #xlabel, #olabel {
+    margin-left: -205px;    
+  }
+  
+  #play {
+    position: fixed;
+    top: 5px;
+    left: 260px;
+    height: 125px;
+  }
+}
