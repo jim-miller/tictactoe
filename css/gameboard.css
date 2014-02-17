@@ -61,8 +61,10 @@
 	border-bottom: none;
 }
 
-#instructions {
-	font-size: 18px;
-	font-weight: bold;
-	margin-left: -50px;
+@media (max-width: 768px) {
+  #game-grid {
+    position: fixed;
+    top: 100px;
+    left: 30px;
+  }
 }

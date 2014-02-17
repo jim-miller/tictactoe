@@ -8,8 +8,10 @@
 
     <!-- Bootstrap -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
+		<link rel="stylesheet" href="css/tictactoe.css" type="text/css" media="screen" charset="utf-8">
 		<link rel="stylesheet" href="css/gameboard.css" type="text/css" media="screen" charset="utf-8">
 		<link href='http://fonts.googleapis.com/css?family=Indie+Flower' rel='stylesheet' type='text/css'>
+    <link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -19,10 +21,34 @@
     <![endif]-->
   </head>
   <body>
-			<div class="row text-center" id="instructions">
-				Number of Players: <input id="playerCount" value="1" type="number" min="0" max="2">
-				<button type="button" class="btn" id="go">Go!</button>
-			</div>
+		<div id="game-options" class="container center-block">
+        <div id="playerX-select" class="col-xs-5">
+          <div id="xlabel" class="label">X</div>
+          <div class="btn-group pull-right" data-toggle="buttons">
+            <label class="btn btn-primary">
+              <input type="radio" name="playerX" value="human"><i class="fa fa-user fa-3x"></i>
+            </label>
+            <label class="btn btn-primary">
+              <input type="radio" name="playerX" value="computer"><i class="fa fa-desktop fa-3x"></i>
+            </label>
+          </div>
+        </div>
+        <div class="col-xs-1">
+          <button id="play" class="btn btn-lg btn-warning">Play</button>
+        </div>
+        <div id="playerO-select" class="col-xs-5">
+          <div id="olabel" class="label">O</div>
+          <div class="btn-group pull-left" data-toggle="buttons">
+            <label class="btn btn-primary">
+              <input type="radio" name="playerO" value="human"><i class="fa fa-user fa-3x"></i>
+            </label>
+            <label class="btn btn-primary">
+              <input type="radio" name="playerO" value="computer"><i class="fa fa-desktop fa-3x"></i>
+            </label>
+          </div>
+        </div>
+      </div>
+		</div>
 		<div id="game-grid" class="containter">
 			<div class="row">
 				<div id="0" class="col-xs-4 square"></div>
@@ -43,7 +69,6 @@
 
     <script src="js/jquery-1.11.0.min.js" type="text/javascript"></script>
     <script src="js/bootstrap.min.js" type="text/javascript"></script>
-    <script src="js/learned.js" type="text/javascript"></script>
     <script src="js/tictactoe.js" type="text/javascript"></script>
   </body>
 </html>
