@@ -259,7 +259,7 @@ function RobotOverlord() {
       var gamesLost = 0;
       var gamesDraw = 0;
 
-      for (var totalGamesPracticed = 0; totalGamesPracticed < 25000; totalGamesPracticed++) {
+      for (var totalGamesPracticed = 0; totalGamesPracticed < 15000; totalGamesPracticed++) {
         moveSequence = 0;
         do {
           // TODO: have the opponent try the same sequence until we catch on
